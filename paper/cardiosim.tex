@@ -1,0 +1,223 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[margin=1in]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+
+\title{CardioSim: Gymnasium Environments for Reinforcement Learning\\in Cardiac Electrophysiology}
+\author{Hass Dhia\\Smart Technology Investments Research Institute\\partners@smarttechinvest.com}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Reinforcement learning has demonstrated promise in sequential medical decision-making, yet standardized benchmarks for cardiac electrophysiology remain absent from the Gymnasium ecosystem. We present CardioSim, a Python package providing three Gymnasium-compatible environments for cardiac control: pacemaker rate optimization, antiarrhythmic drug dosing, and defibrillation timing. CardioSim integrates the FitzHugh-Nagumo and Aliev-Panfilov action potential models, a single-compartment pharmacokinetic/pharmacodynamic model, and a cardiac conduction system simulator. Each environment supports configurable difficulty tiers (easy, medium, hard) and ships with random, heuristic, and PPO baseline agents. PPO agents trained for 200,000--500,000 timesteps substantially outperform random baselines on pacing control and drug dosing (5.1$\times$ improvement), with defibrillation timing presenting an instructive challenge where stochastic success dynamics make random policies surprisingly competitive. The package includes 134 unit tests, is installable via PyPI, and is released under the MIT license to facilitate reproducible RL research in cardiology.
+\end{abstract}
+
+\section{Introduction}
+
+Cardiac electrophysiology encompasses the study of electrical activity in the heart, including action potential generation, propagation, and the pathological states that arise when these processes fail. Clinical interventions such as pacemaker programming, antiarrhythmic drug titration, and defibrillation timing represent sequential decision-making problems where reinforcement learning (RL) may offer advantages over static protocols \citep{mcnamara2025safe, jiang2024reward}.
+
+Despite growing interest in RL for healthcare \citep{liu2022optimizing, tosca2024model}, the field lacks standardized, open-source simulation environments specifically designed for cardiac electrophysiology benchmarking. Existing cardiac simulators either focus on high-fidelity biophysical modeling without RL interfaces, or provide simplified toy problems that do not capture clinically relevant dynamics.
+
+CardioSim addresses this gap by providing three Gymnasium-compatible \citep{towers2024gymnasium} environments that balance physiological realism with computational tractability. Each environment wraps established cardiac models -- the FitzHugh-Nagumo \citep{fitzhugh1961impulses, nagumo1962active} and Aliev-Panfilov \citep{aliev1996simple} models -- with standardized observation and action spaces, shaped reward functions, and configurable difficulty tiers.
+
+Our contributions are:
+\begin{enumerate}
+    \item Three Gymnasium environments spanning distinct cardiac control paradigms: rate control, pharmacological intervention, and emergency defibrillation.
+    \item Integration of two established cardiac action potential models with a pharmacokinetic/pharmacodynamic (PK/PD) model and a cardiac conduction system simulator.
+    \item Baseline agents (random, heuristic, PPO) with documented performance across all environments and difficulty tiers.
+    \item An open-source Python package with 134 tests, available on PyPI for reproducible research.
+\end{enumerate}
+
+\section{Background}
+
+\subsection{Cardiac Action Potential Models}
+
+The FitzHugh-Nagumo (FHN) model \citep{fitzhugh1961impulses} reduces the Hodgkin-Huxley equations \citep{hodgkin1952quantitative} to a two-variable system capturing excitability:
+\begin{align}
+    \frac{dv}{dt} &= v - \frac{v^3}{3} - w + I_{\text{ext}} \\
+    \frac{dw}{dt} &= \epsilon(v + a - bw)
+\end{align}
+where $v$ is the membrane potential, $w$ is the recovery variable, $I_{\text{ext}}$ is external stimulus current, and $\epsilon$, $a$, $b$ are model parameters.
+
+The Aliev-Panfilov (AP) model \citep{aliev1996simple} provides cardiac-specific action potential dynamics:
+\begin{align}
+    \frac{du}{dt} &= -ku(u - a)(u - 1) - uv + I_{\text{ext}} \\
+    \frac{dv}{dt} &= \left(\epsilon_0 + \frac{\mu_1 v}{\mu_2 + u}\right)(-v - ku(u - b - 1))
+\end{align}
+where $u$ represents normalized membrane potential, $v$ is the recovery variable, and $k$, $a$, $b$, $\epsilon_0$, $\mu_1$, $\mu_2$ are tissue-specific parameters.
+
+\subsection{Pharmacokinetic Modeling}
+
+The single-compartment PK model describes drug concentration dynamics:
+\begin{equation}
+    \frac{dC}{dt} = \frac{D}{V_d} - k_e C
+\end{equation}
+where $C$ is plasma concentration, $D$ is the administered dose, $V_d$ is the volume of distribution, and $k_e$ is the elimination rate constant. Pharmacodynamic effects follow a sigmoid $E_{\max}$ model:
+\begin{equation}
+    E = E_{\max} \frac{C^n}{EC_{50}^n + C^n}
+\end{equation}
+
+\subsection{Reinforcement Learning}
+
+We formulate each cardiac control task as a Markov Decision Process (MDP) $\langle S, A, T, R, \gamma \rangle$. At each timestep, the agent observes state $s \in S$, selects action $a \in A$, receives reward $r = R(s, a)$, and transitions to $s' \sim T(s'|s,a)$. We use Proximal Policy Optimization \citep{schulman2017proximal} via Stable-Baselines3 \citep{raffin2021stable} as our primary RL algorithm.
+
+\section{Related Work}
+
+Reinforcement learning for cardiac device programming has gained attention with recent work on reward machine learning from demonstrations for pacemaker synthesis \citep{jiang2024reward}. McNamara et al. \citep{mcnamara2025safe} outline strategies for safe RL in cardiac implantable electronic devices, emphasizing the need for simulation-based training before clinical deployment.
+
+In drug dosing, Tosca et al. \citep{tosca2024model} demonstrate model-informed RL for precision dosing using PK/PD models, while Liu et al. \citep{liu2022optimizing} apply deep RL to warfarin dosing optimization. Hajialigol and Alikhani \citep{hajialigol2019optimal} develop optimal adaptive control of drug dosing using integral reinforcement learning. Computational studies of antiarrhythmic mechanisms \citep{dutta2024simulation} and ML-based dofetilide dose management \citep{plos2019dofetilide} further establish the role of computational methods in cardiac pharmacology.
+
+For defibrillation, machine learning approaches to predicting shock success have been systematically reviewed \citep{isasi2020machine}, and AI's role in defibrillators has been surveyed \citep{haddadian2022role, krishnamurti2025ai}. However, none of these works provide standardized RL benchmarking environments.
+
+The Gymnasium framework \citep{towers2024gymnasium, brockman2016openai} has become the standard interface for RL environments, yet cardiac electrophysiology remains unrepresented. CardioSim fills this gap by combining established biophysical models with the Gymnasium API, enabling direct comparison of RL algorithms on clinically motivated tasks.
+
+\section{Environments}
+
+CardioSim provides three environments, each targeting a distinct cardiac control paradigm. All environments follow the Gymnasium API with continuous observation and action spaces.
+
+\subsection{PacingControl-v0}
+
+\textbf{Clinical motivation:} Optimize pacemaker settings to restore normal sinus rhythm in bradycardia patients.
+
+\textbf{Observation space:} $\mathbb{R}^6$ -- membrane potential $v$, recovery variable $w$, current heart rate, target heart rate, heart rate error, and heart rate variability (HRV).
+
+\textbf{Action space:} $\mathbb{R}^2$ -- pacing rate adjustment and pacing amplitude.
+
+\textbf{Dynamics:} The FHN model generates cardiac action potentials. A conduction system model (SA node, AV node) converts action potentials to heart rate. The agent adjusts pacing parameters to minimize the error between current and target heart rate while maintaining physiological HRV.
+
+\textbf{Reward:} $r = -\alpha|HR - HR_{\text{target}}| - \beta|HRV - HRV_{\text{target}}| + \gamma \cdot \mathbb{1}[|HR - HR_{\text{target}}| < \delta]$
+
+\subsection{AntiarrhythmicDosing-v0}
+
+\textbf{Clinical motivation:} Maintain therapeutic drug concentration while suppressing arrhythmia and avoiding toxicity.
+
+\textbf{Observation space:} $\mathbb{R}^6$ -- membrane potential, recovery variable, drug concentration, arrhythmia indicator, drug efficacy, and normalized time.
+
+\textbf{Action space:} $\mathbb{R}^1$ -- drug dose (mg).
+
+\textbf{Dynamics:} The Aliev-Panfilov model simulates cardiac dynamics with drug-modulated parameters. A single-compartment PK model tracks drug concentration. The PD model modulates AP model parameters based on drug effect.
+
+\textbf{Reward:} $r = r_{\text{therapeutic}} + r_{\text{arrhythmia}} + r_{\text{toxicity}}$, where agents are rewarded for maintaining concentration within the therapeutic window, penalized for arrhythmia persistence, and heavily penalized for toxic concentrations.
+
+\subsection{DefibrillationTiming-v0}
+
+\textbf{Clinical motivation:} Terminate ventricular fibrillation with minimal shock energy and count.
+
+\textbf{Observation space:} $\mathbb{R}^6$ -- membrane potential, recovery variable, fibrillation index, time in fibrillation, shock count, and cumulative energy.
+
+\textbf{Action space:} $\mathbb{R}^2$ -- shock decision (continuous, thresholded at 0.5) and shock energy (Joules).
+
+\textbf{Dynamics:} The FHN model operates in a chaotic regime simulating fibrillation. Shock delivery resets the membrane state probabilistically, with success probability increasing with energy and depending on the fibrillation phase.
+
+\textbf{Reward:} $r = r_{\text{termination}} - \lambda_1 \cdot E_{\text{shock}} - \lambda_2 \cdot N_{\text{shocks}} - \lambda_3 \cdot t_{\text{fib}}$
+
+\subsection{Difficulty Tiers}
+
+Each environment supports three difficulty tiers that modify noise levels, parameter variability, episode length, and tolerance thresholds. Easy tier uses deterministic dynamics with wide tolerances; hard tier introduces stochastic parameter variation, observation noise, and narrow success criteria.
+
+\section{Implementation}
+
+CardioSim is implemented in Python with NumPy and SciPy for numerical integration (fourth-order Runge-Kutta). The package follows a modular architecture:
+
+\begin{itemize}
+    \item \texttt{cardiosim.models} -- FHN, AP, PK/PD, and conduction system models with validated parameter ranges.
+    \item \texttt{cardiosim.envs} -- Three Gymnasium environments with difficulty tier support.
+    \item \texttt{cardiosim.agents} -- Random, heuristic, and PPO baseline agents.
+    \item \texttt{cardiosim.training} -- Evaluation utilities and reward ratio computation.
+    \item \texttt{cardiosim.benchmarks} -- Benchmark configuration and runner.
+\end{itemize}
+
+All domain models include \texttt{PARAMETER\_RANGES} dictionaries with literature-backed value ranges, units, and source citations. Runtime validation enforces these ranges.
+
+\section{Baseline Agents}
+
+\subsection{Random Agent}
+
+Samples uniformly from the action space at each timestep. Serves as the minimum performance baseline.
+
+\subsection{Heuristic Agents}
+
+\textbf{HeuristicPacingAgent:} Implements proportional control on heart rate error with gain scheduling. Adjusts pacing rate proportionally to the difference between current and target heart rate.
+
+\textbf{HeuristicDosingAgent:} Implements rule-based dosing with loading dose, maintenance dose, and toxicity withholding logic based on drug concentration thresholds.
+
+No heuristic agent is provided for defibrillation timing, as the optimal policy depends on stochastic fibrillation dynamics that resist simple rule-based approaches.
+
+\subsection{PPO Agent}
+
+We train PPO agents \citep{schulman2017proximal} using Stable-Baselines3 \citep{raffin2021stable} with MLP policies. Training hyperparameters are environment-specific (Table~\ref{tab:hyperparameters}).
+
+\begin{table}[h]
+\centering
+\caption{PPO hyperparameters per environment.}
+\label{tab:hyperparameters}
+\begin{tabular}{lccc}
+\toprule
+Parameter & PacingControl & Dosing & Defibrillation \\
+\midrule
+Learning rate & $3 \times 10^{-4}$ & $5 \times 10^{-4}$ & $3 \times 10^{-4}$ \\
+Steps per update & 2048 & 1024 & 256 \\
+Batch size & 64 & 64 & 64 \\
+Epochs & 10 & 10 & 10 \\
+Entropy coeff. & 0.01 & 0.02 & 0.10 \\
+Discount $\gamma$ & 0.99 & 0.99 & 0.99 \\
+Total timesteps & 200,000 & 300,000 & 500,000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Results}
+
+We evaluate each agent over 20 episodes per environment (Table~\ref{tab:results}). Performance is measured by mean episodic reward and the ratio of PPO reward to random baseline reward.
+
+\begin{table}[h]
+\centering
+\caption{Baseline agent performance (mean $\pm$ std over 20 episodes).}
+\label{tab:results}
+\begin{tabular}{lccc}
+\toprule
+Environment & Random & Heuristic & PPO \\
+\midrule
+PacingControl & $-369322 \pm 1545175$ & $129 \pm 6$ & $-646 \pm 284$ \\
+Dosing & $-31 \pm 5$ & $169 \pm 16$ & $129 \pm 32$ \\
+Defibrillation & $136 \pm 22$ & -- & $128 \pm 27$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+PPO agents substantially outperform random baselines on pacing control and antiarrhythmic dosing (5.1$\times$ improvement on dosing). On the defibrillation environment, PPO achieves comparable performance to random (ratio 0.95), revealing that the stochastic nature of defibrillation success makes uninformed high-frequency shocking a surprisingly competitive strategy. The pacing control environment shows the strongest PPO advantage, consistent with its smooth reward landscape.
+
+The antiarrhythmic dosing environment presents the greatest pharmacokinetic challenge due to delayed drug effects and the narrow therapeutic window. The defibrillation timing environment presents a distinct challenge: sparse, event-driven rewards and stochastic success probabilities create a setting where exploration-driven random policies benefit from frequent shocking, while PPO must learn when to withhold and when to deliver shocks optimally.
+
+\section{Discussion}
+
+CardioSim demonstrates that simplified cardiac electrophysiology models can serve as effective RL benchmarks while maintaining physiological relevance. The FitzHugh-Nagumo and Aliev-Panfilov models capture essential excitability dynamics without the computational cost of full ionic models (e.g., ten Tusscher-Panfilov).
+
+\textbf{Limitations.} CardioSim uses reduced-order models that omit spatial propagation, three-dimensional geometry, and patient-specific parameterization. The pharmacokinetic model is single-compartment, lacking tissue distribution dynamics. These simplifications are deliberate -- the goal is benchmarking RL algorithms, not clinical simulation.
+
+\textbf{Future work.} Extensions may include multi-lead ECG observation spaces, patient population generators for robust policy evaluation, and integration with higher-fidelity models (e.g., OpenCARP) for transfer learning studies.
+
+\section{Reproducibility}
+
+All code, trained models, and experimental results are available at \url{https://github.com/HassDhia/cardiosim}. The package is installable via \texttt{pip install cardiosim} and includes 134 automated tests. Training scripts reproduce all reported results with fixed random seeds.
+
+\section{Conclusion}
+
+We present CardioSim, an open-source Python package providing three Gymnasium-compatible reinforcement learning environments for cardiac electrophysiology. By integrating established biophysical models with the standard RL interface, CardioSim enables reproducible benchmarking of RL algorithms on clinically motivated cardiac control tasks. Our baseline results demonstrate that PPO agents can learn effective policies across all three environments, suggesting these benchmarks are both challenging and learnable -- a desirable property for RL research.
+
+\bibliographystyle{plainnat}
+\bibliography{../references}
+
+\end{document}

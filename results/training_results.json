@@ -1,0 +1,41 @@
+{
+  "PacingControl-v0": {
+    "env_id": "cardiosim/PacingControl-v0",
+    "random_mean_reward": -369322.4027821634,
+    "random_std_reward": 1545175.0082890335,
+    "heuristic_mean_reward": 128.53531083299495,
+    "heuristic_std_reward": 6.313069886146792,
+    "ppo_mean_reward": -646.2551887198529,
+    "ppo_std_reward": 283.99232403122403,
+    "ppo_vs_random_ratio": 0.9982501597957463,
+    "ppo_vs_random_ratio_note": "negative_baseline_abs_improvement",
+    "total_timesteps": 200000,
+    "n_eval_episodes": 20
+  },
+  "AntiarrhythmicDosing-v0": {
+    "env_id": "cardiosim/AntiarrhythmicDosing-v0",
+    "random_mean_reward": -31.221951254198963,
+    "random_std_reward": 5.274581978965271,
+    "heuristic_mean_reward": 168.65714999999992,
+    "heuristic_std_reward": 16.211502491363923,
+    "ppo_mean_reward": 129.26603882005193,
+    "ppo_std_reward": 32.04186413792032,
+    "ppo_vs_random_ratio": 5.140229345937091,
+    "ppo_vs_random_ratio_note": "negative_baseline_abs_improvement",
+    "total_timesteps": 300000,
+    "n_eval_episodes": 20
+  },
+  "DefibrillationTiming-v0": {
+    "env_id": "cardiosim/DefibrillationTiming-v0",
+    "random_mean_reward": 135.55998729634285,
+    "random_std_reward": 22.17218176407696,
+    "heuristic_mean_reward": null,
+    "heuristic_std_reward": null,
+    "ppo_mean_reward": 128.20803940582275,
+    "ppo_std_reward": 27.245318348754996,
+    "ppo_vs_random_ratio": 0.9457660919187881,
+    "ppo_vs_random_ratio_note": "standard_ratio",
+    "total_timesteps": 500000,
+    "n_eval_episodes": 20
+  }
+}

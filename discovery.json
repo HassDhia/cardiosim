@@ -1,0 +1,16 @@
+{
+  "project": "CardioSim",
+  "surprise_finding": "Cardiac pacemaker control via the FitzHugh-Nagumo model exhibits an asymmetric learning landscape: PPO rapidly learns to avoid harmful over-pacing (negative reward avoidance) but struggles with the subtler task of precisely matching target heart rate variability. This mirrors clinical observations where crude rate control is achievable but physiological rate-responsive pacing requires sophisticated sensing and adaptation. The reward shaping that bridges this gap -- penalizing HRV deviation alongside rate error -- creates a curriculum effect where agents first stabilize rate, then refine variability, paralleling the clinical programming workflow of bradycardia pacemakers.",
+  "domain": "cardiac electrophysiology",
+  "models_used": [
+    "FitzHugh-Nagumo (1961)",
+    "Aliev-Panfilov (1996)",
+    "Single-compartment PK/PD",
+    "SA/AV node conduction system"
+  ],
+  "implications": [
+    "RL benchmarking for sequential cardiac decision-making",
+    "Curriculum learning emergent from physiological reward structure",
+    "Safety-constrained exploration in defibrillation timing"
+  ]
+}

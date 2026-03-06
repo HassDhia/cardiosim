@@ -1,0 +1,58 @@
+[
+  {
+    "name": "John Jiang",
+    "email": "jjiang@utexas.edu",
+    "title": "Researcher",
+    "institution": "University of Texas at Austin",
+    "paper": "Show, Don't Tell: Learning Reward Machines from Demonstrations for Reinforcement Learning-Based Cardiac Pacemaker Synthesis (2024)",
+    "relevance": "RL-based cardiac pacemaker synthesis using reward machines"
+  },
+  {
+    "name": "Ufuk Topcu",
+    "email": "utopcu@utexas.edu",
+    "title": "Professor",
+    "institution": "University of Texas at Austin",
+    "paper": "Show, Don't Tell: Learning Reward Machines from Demonstrations for Reinforcement Learning-Based Cardiac Pacemaker Synthesis (2024)",
+    "relevance": "Formal methods and RL for autonomous systems including cardiac devices"
+  },
+  {
+    "name": "Elisa M. Tosca",
+    "email": "elisa.tosca@unipd.it",
+    "title": "Researcher",
+    "institution": "University of Padova",
+    "paper": "Model-Informed Reinforcement Learning for Enabling Precision Dosing Via Adaptive Dosing (2024)",
+    "relevance": "RL for precision drug dosing with PK/PD models"
+  },
+  {
+    "name": "Antonin Raffin",
+    "email": "antonin.raffin@dlr.de",
+    "title": "Research Scientist",
+    "institution": "German Aerospace Center (DLR)",
+    "paper": "Stable-Baselines3: Reliable Reinforcement Learning Implementations (2021)",
+    "relevance": "Creator of Stable-Baselines3 used as PPO implementation"
+  },
+  {
+    "name": "Sara Dutta",
+    "email": "sara.dutta@fda.hhs.gov",
+    "title": "Research Scientist",
+    "institution": "FDA / CDER",
+    "paper": "A simulation study on the antiarrhythmic mechanisms of established agents in myocardial ischemia and infarction (2024)",
+    "relevance": "Computational modeling of antiarrhythmic drug mechanisms"
+  },
+  {
+    "name": "Yawei Liu",
+    "email": "liuyawei@zju.edu.cn",
+    "title": "Researcher",
+    "institution": "Zhejiang University",
+    "paper": "Optimizing Warfarin Dosing using Deep Reinforcement Learning (2022)",
+    "relevance": "Deep RL for anticoagulant dosing optimization"
+  },
+  {
+    "name": "Iraia Isasi",
+    "email": "iraia.isasi@ehu.eus",
+    "title": "Researcher",
+    "institution": "University of the Basque Country",
+    "paper": "The ability of machine learning algorithms to predict defibrillation success during cardiac arrest: A systematic review (2023)",
+    "relevance": "ML for defibrillation success prediction"
+  }
+]
