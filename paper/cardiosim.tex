@@ -54,17 +54,18 @@ where $v$ is the membrane potential, $w$ is the recovery variable, $I_{\text{ext
 The Aliev-Panfilov (AP) model \citep{aliev1996simple} provides cardiac-specific action potential dynamics:
 \begin{align}
     \frac{du}{dt} &= -ku(u - a)(u - 1) - uv + I_{\text{ext}} \\
-    \frac{dv}{dt} &= \left(\epsilon_0 + \frac{\mu_1 v}{\mu_2 + u}\right)(-v - ku(u - b - 1))
+    \frac{dv}{dt} &= \left(\epsilon_0 + \frac{\mu_1 v}{\mu_2 + u}\right)(-v - ku(u - a - 1))
 \end{align}
 where $u$ represents normalized membrane potential, $v$ is the recovery variable, and $k$, $a$, $b$, $\epsilon_0$, $\mu_1$, $\mu_2$ are tissue-specific parameters.
 
 \subsection{Pharmacokinetic Modeling}
 
-The single-compartment PK model describes drug concentration dynamics:
-\begin{equation}
-    \frac{dC}{dt} = \frac{D}{V_d} - k_e C
-\end{equation}
-where $C$ is plasma concentration, $D$ is the administered dose, $V_d$ is the volume of distribution, and $k_e$ is the elimination rate constant. Pharmacodynamic effects follow a sigmoid $E_{\max}$ model:
+The single-compartment PK model describes drug concentration dynamics with first-order absorption:
+\begin{align}
+    \frac{dA_{\text{gut}}}{dt} &= -k_a A_{\text{gut}} + D \\
+    \frac{dC}{dt} &= \frac{k_a A_{\text{gut}}}{V_d} - k_e C
+\end{align}
+where $A_{\text{gut}}$ is the gut compartment amount, $C$ is plasma concentration, $D$ is the administered dose, $V_d$ is the volume of distribution, $k_a$ is the absorption rate constant, and $k_e$ is the elimination rate constant. Pharmacodynamic effects follow a sigmoid $E_{\max}$ model:
 \begin{equation}
     E = E_{\max} \frac{C^n}{EC_{50}^n + C^n}
 \end{equation}
@@ -107,7 +108,7 @@ CardioSim provides three environments, each targeting a distinct cardiac control
 
 \textbf{Action space:} $\mathbb{R}^1$ -- drug dose (mg).
 
-\textbf{Dynamics:} The Aliev-Panfilov model simulates cardiac dynamics with drug-modulated parameters. A single-compartment PK model tracks drug concentration. The PD model modulates AP model parameters based on drug effect.
+\textbf{Dynamics:} The FHN model simulates cardiac dynamics with drug-modulated parameters. A single-compartment PK model tracks drug concentration. The PD model modulates action potential parameters based on drug effect.
 
 \textbf{Reward:} $r = r_{\text{therapeutic}} + r_{\text{arrhythmia}} + r_{\text{toxicity}}$, where agents are rewarded for maintaining concentration within the therapeutic window, penalized for arrhythmia persistence, and heavily penalized for toxic concentrations.
 
@@ -119,7 +120,7 @@ CardioSim provides three environments, each targeting a distinct cardiac control
 
 \textbf{Action space:} $\mathbb{R}^2$ -- shock decision (continuous, thresholded at 0.5) and shock energy (Joules).
 
-\textbf{Dynamics:} The FHN model operates in a chaotic regime simulating fibrillation. Shock delivery resets the membrane state probabilistically, with success probability increasing with energy and depending on the fibrillation phase.
+\textbf{Dynamics:} The Aliev-Panfilov model operates in a chaotic regime simulating fibrillation. Shock delivery resets the membrane state probabilistically, with success probability increasing with energy and depending on the fibrillation phase.
 
 \textbf{Reward:} $r = r_{\text{termination}} - \lambda_1 \cdot E_{\text{shock}} - \lambda_2 \cdot N_{\text{shocks}} - \lambda_3 \cdot t_{\text{fib}}$
 
@@ -129,7 +130,7 @@ Each environment supports three difficulty tiers that modify noise levels, param
 
 \section{Implementation}
 
-CardioSim is implemented in Python with NumPy and SciPy for numerical integration (fourth-order Runge-Kutta). The package follows a modular architecture:
+CardioSim is implemented in Python with NumPy for numerical integration (custom fourth-order Runge-Kutta). The package follows a modular architecture:
 
 \begin{itemize}
     \item \texttt{cardiosim.models} -- FHN, AP, PK/PD, and conduction system models with validated parameter ranges.
