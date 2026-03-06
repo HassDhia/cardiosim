@@ -180,7 +180,7 @@ class DefibrillationTimingEnv(gym.Env):
 
     def _get_obs(self) -> np.ndarray:
         fib_index = self._compute_fibrillation_index()
-        return np.array([
+        obs = np.array([
             self.cell_model.u,
             self.cell_model.v,
             fib_index,
@@ -188,6 +188,7 @@ class DefibrillationTimingEnv(gym.Env):
             float(self.shocks_delivered),
             self.total_energy,
         ], dtype=np.float32)
+        return np.clip(obs, self.observation_space.low, self.observation_space.high)
 
     def _compute_fibrillation_index(self) -> float:
         """Compute a measure of rhythm irregularity from voltage history."""
@@ -195,6 +196,7 @@ class DefibrillationTimingEnv(gym.Env):
             return 1.0 if self.in_fibrillation else 0.0
 
         recent = self._voltage_history[-50:]
+        self._voltage_history = self._voltage_history[-50:]
         # High variance = fibrillation, low variance = normal rhythm
         variance = np.var(recent)
         # Normalize to [0, 1]

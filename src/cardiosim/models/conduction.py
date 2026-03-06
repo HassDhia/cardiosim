@@ -122,12 +122,12 @@ class CardiacConductionModel:
                 time_since_av = self.time - self.last_av_fire
                 if time_since_av > self.refractory_period:
                     av_fired = True
-                    self.last_av_fire = self.time + self.av_delay
+                    self.last_av_fire = self.time
 
         # Ventricular activation after His-Purkinje delay
         if av_fired:
             ventricular_fired = True
-            self.last_ventricular = self.time + self.av_delay + self.his_purkinje_delay
+            self.last_ventricular = self.time
 
             # Record RR interval
             if len(self.rr_intervals) > 0 or self.time > self.sa_interval * 2:

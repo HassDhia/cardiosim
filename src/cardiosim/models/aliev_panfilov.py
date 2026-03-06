@@ -69,6 +69,7 @@ class AlievPanfilovModel:
 
         self.u = 0.0
         self.v = 0.0
+        self._rng: np.random.Generator = np.random.default_rng()
 
     @staticmethod
     def _validate_params(k: float, a: float, eps0: float, mu1: float, mu2: float) -> None:
@@ -84,6 +85,7 @@ class AlievPanfilovModel:
     def reset(self, rng: np.random.Generator | None = None) -> tuple[float, float]:
         """Reset to resting state."""
         if rng is not None:
+            self._rng = rng
             self.u = max(0.0, rng.normal(0.0, 0.01))
             self.v = max(0.0, rng.normal(0.0, 0.01))
         else:
@@ -121,7 +123,7 @@ class AlievPanfilovModel:
         self.v = np.clip(self.v, -0.1, 20.0)
 
         if self.noise_std > 0:
-            self.u += np.random.normal(0, self.noise_std)
+            self.u += self._rng.normal(0, self.noise_std)
 
         return self.u, self.v
 

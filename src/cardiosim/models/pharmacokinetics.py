@@ -101,8 +101,8 @@ class SingleCompartmentPKModel:
         if dose_mg > 0:
             self.administer_dose(dose_mg)
 
-        # Absorption from gut to plasma
-        absorbed = self.ka * self.gut_amount * self.dt
+        # Absorption from gut to plasma (clamped to prevent negative gut)
+        absorbed = min(self.ka * self.gut_amount * self.dt, self.gut_amount)
         self.gut_amount -= absorbed
 
         # Volume-adjusted concentration change

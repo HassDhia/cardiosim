@@ -67,6 +67,7 @@ class FitzHughNagumoModel:
 
         self.v = -1.2
         self.w = -0.6
+        self._rng: np.random.Generator = np.random.default_rng()
 
     @staticmethod
     def _validate_param(name: str, value: float) -> None:
@@ -80,6 +81,7 @@ class FitzHughNagumoModel:
     def reset(self, rng: np.random.Generator | None = None) -> tuple[float, float]:
         """Reset to resting state with optional small perturbation."""
         if rng is not None:
+            self._rng = rng
             self.v = -1.2 + rng.normal(0, 0.05)
             self.w = -0.6 + rng.normal(0, 0.05)
         else:
@@ -114,7 +116,7 @@ class FitzHughNagumoModel:
         self.w += (dt / 6.0) * (k1w + 2 * k2w + 2 * k3w + k4w)
 
         if self.noise_std > 0:
-            self.v += np.random.normal(0, self.noise_std)
+            self.v += self._rng.normal(0, self.noise_std)
 
         return self.v, self.w
 
